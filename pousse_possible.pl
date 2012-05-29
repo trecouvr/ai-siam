@@ -1,5 +1,4 @@
 
-include('tools.pl').
 
 pousse_possible([E,R,M,_], NumCase, Direction) :-
 	!,
