@@ -1,6 +1,6 @@
 %plateau_depart([[(51,n),(52,s),(53,w),(54,e),(55,e)],[(11,n),(12,n),(13,s),(15,w),(14,e)],[32,33,34],e]).
-%plateau_depart([[(0,n),(0,s),(0,w),(0,e),(0,e)],[(0,n),(0,n),(0,s),(0,w),(0,e)],[32,33,34],e]).
-plateau_depart([[(23,n),(13,n),(0,w),(0,e),(0,e)],[(33,s),(43,s),(53,s),(0,w),(0,e)],[32,35,34],e]).
+plateau_depart([[(11,e),(12,s),(0,w),(0,e),(0,e)],[(0,n),(0,n),(0,s),(0,w),(0,e)],[32,33,34],e]).
+%plateau_depart([[(23,n),(13,n),(0,w),(0,e),(0,e)],[(33,s),(43,s),(53,s),(0,w),(0,e)],[32,35,34],e]).
 
 element(X, [X|_]).
 element(X, [_|R]) :- element(X,R).
@@ -41,6 +41,26 @@ direction_opposee(s,n).
 direction_opposee(w,e).
 direction_opposee(n,s).
 
+% case vide
+case_vide([E,R,M,_], Position) :- \+member((Position,_), E), \+member((Position,_), R), \+member((Position,_), M).
+case_vide(P,X,Y) :- index(X,Y,N), case_vide(N, P).
+
+% est-ce que un animal est dehors ?
+dehors([E,_,_,e], (0,O)) :- member((0,O),E).
+dehors([_,R,_,r], (0,O)) :- member((0,O),R).
+
+% est-ce que l'animal sur la positione est à moi
+is_mine([E,_,_,e], NumCase, (NumCase, O)) :- member((NumCase,O), E).
+is_mine([_,R,_,r], NumCase, (NumCase, O)) :- member((NumCase,O), R).
+
+case_bordure(NumCase) :- member(NumCase, [11,12,13,14,15,25,35,45,55,54,53,52,51,41,31,21]).
+
+% la case est dans le plateau ??
+case_valid(NumCase) :- member(NumCase, [11,12,13,14,15,21,22,23,24,25,31,32,33,34,35,41,42,43,44,45,51,52,53,54,55]).
+
+% l'orientation est valide
+orientation_valid(O) :- member(O, [n,s,e,w]).
+
 pousse_possible([E,R,M,_], NumCase, Direction) :-
 	!,
 	append(E,R,A),
@@ -58,7 +78,6 @@ force_masse(A, M, NumCase, Direction, Force, Masse) :-
 	next_case(NumCase, Direction, NextCase),
 	force_masse(A, M, NextCase, Direction, Force, Masse2),
 	Masse is Masse2+1.
-%pousse_possible([E,R,M,P], NumCase, Direction, Force, Masse) :- next_case(NumCase, Direction, NextCase), member(NextCase, M), !, Masse2 is Masse+1,	pousse_possible([E,R,M,P], NextCase, Direction, Force, Masse2).
 
 % éléphant ou rino dans la même direction
 % force++
@@ -69,8 +88,6 @@ force_masse(A, M, NumCase, Direction, Force, Masse) :-
 	next_case(NumCase, Direction, NextCase),
 	force_masse(A, M, NextCase, Direction, Force2, Masse),
 	Force is Force2+1.
-
-%pousse_possible([E,R,M,P], NumCase, Direction, Force, Masse) :- next_case(NumCase, Direction, NextCase), append(E,R,L), member((NextCase,Direction), L), !, Force2 is Force+1, pousse_possible([E,R,M,P], NextCase, Direction, Force2, Masse).
 
 % éléphant ou rino dans la direction opposée
 % force--
@@ -83,8 +100,6 @@ force_masse(A, M, NumCase, Direction, Force, Masse) :-
 	force_masse(A, M, NextCase, Direction, Force2, Masse),
 	Force is Force2-1.
 
-%pousse_possible([E,R,M,P], NumCase, Direction, Force, Masse) :- next_case(NumCase, Direction, NextCase), direction_opposee(Direction, Opposee), append(E,R,L), member((NextCase,Opposee), L), !, Force2 is Force-1,	pousse_possible([E,R,M,P], NextCase, Direction, Force2, Masse).
-
 
 % éléphant ou rino dans n'importe quelle position
 % force idem
@@ -95,20 +110,55 @@ force_masse(A, M, NumCase, Direction, Force, Masse) :-
 	next_case(NumCase, Direction, NextCase),
 	force_masse(A, M, NextCase, Direction, Force, Masse).
 	
-%pousse_possible([E,R,M,P], NumCase, Direction, Force, Masse) :- next_case(NumCase, Direction, NextCase), append(E,R,L), member((NextCase,_), L), !,	pousse_possible([E,R,M,P], NextCase, Direction, Force, Masse).
 
-
-% case vide
 % vrai si force >= masse
 force_masse(_, _, _, _, 0, 0).
 
 
-coup_possible(_).
+% faire entrer une pièce
+coup_possible(Plateau, (0, Position, O)) :-
+	case_bordure(Position),
+	orientation_valid(O),
+	dehors(Plateau, _),
+	case_vide(Plateau, Position).
+
+% sortir une pièce
+coup_possible(Plateau, (Position, 0, O)) :-
+	case_bordure(Position),
+	orientation_valid(O),
+	is_mine(Plateau,Position,(Position,O)).
+
+% changement orientation
+coup_possible(Plateau, (P,P, O)) :-
+	case_valid(P),
+	orientation_valid(O),
+	is_mine(Plateau,P,_).
+
+% déplacement sur case vide
+coup_possible(Plateau, (D,A,O)) :-
+	orientation_valid(O),
+	case_valid(D),
+	case_valid(A),
+	case_vide(Plateau, A),
+	is_mine(Plateau, D, (D,O)),
+	next_case(D,_,A).
+
+% déplacement en poussant
+coup_possible(Plateau, (Depart,Arrive,Direction)) :-
+	orientation_valid(Direction),
+	case_valid(Depart),
+	case_valid(Arrive),
+	\+ case_vide(Plateau,Arrive),
+	next_case(Depart,Direction,Arrive),
+	is_mine(Plateau, Depart, (Depart,Direction)),
+	pousse_possible(Plateau, Depart, Direction).
+
 demande_coup(X) :-
 	repeat,
 	write('Coup : '),
 	read(X),
 	coup_possible(X),
 	!.
+	
 % :- dynamic(plateau/1).
 % setplateau(P) :- retractall(plateau(_)), asserta(plateau(P)).
