@@ -1,5 +1,4 @@
 
-include('tools.pl').
 
 % faire entrer une pièce
 coup_possible(Plateau, (0, Position, O)) :-
@@ -39,5 +38,7 @@ coup_possible(Plateau, (Depart,Arrive,Direction)) :-
 	is_mine(Plateau, Depart, (Depart,Direction)),
 	pousse_possible(Plateau, Depart, Direction).
 
+
+coups_possibles(Plateau, L) :- !, findall(C, coup_possible(Plateau,C), L), !.
 
 
