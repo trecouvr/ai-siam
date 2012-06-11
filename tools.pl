@@ -33,8 +33,8 @@ case_vide([E,R,M,_], Position) :- \+member((Position,_), E), \+member((Position,
 case_vide(P,X,Y) :- index(X,Y,N), case_vide(N, P).
 
 % est-ce que un animal est dehors ?
-dehors([E,_,_,e], (0,O)) :- member((0,O),E).
-dehors([_,R,_,r], (0,O)) :- member((0,O),R).
+check_dehors([E,_,_,e]) :- member((0,_),E).
+check_dehors([_,R,_,r]) :- member((0,_),R).
 
 % est-ce que l'animal sur la positione est à moi
 is_mine([E,_,_,e], NumCase, (NumCase, O)) :- member((NumCase,O), E).

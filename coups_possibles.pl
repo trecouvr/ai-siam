@@ -4,7 +4,7 @@
 coup_possible(Plateau, (0, Position, O)) :-
 	case_bordure(Position),
 	orientation_valid(O),
-	dehors(Plateau, _),
+	check_dehors(Plateau),
 	case_vide(Plateau, Position).
 
 % sortir une pièce
