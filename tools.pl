@@ -5,10 +5,16 @@ index(X,Y,N) :- num_case(X,Y,N).
 num_case(X,Y,N) :- N is X+Y*10.
 x_y_case(X,Y,N) :- X is N mod 10, Y is N//10.
 
-next_case(NumCase, e, NextCase) :- index(X,Y,NumCase), X2 is X+1, index(X2,Y,NextCase).
-next_case(NumCase, w, NextCase) :- index(X,Y,NumCase), X2 is X-1, index(X2,Y,NextCase).
-next_case(NumCase, s, NextCase) :- index(X,Y,NumCase), Y2 is Y-1, index(X,Y2,NextCase).
-next_case(NumCase, n, NextCase) :- index(X,Y,NumCase), Y2 is Y+1, index(X,Y2,NextCase).
+next_case(NumCase, e, NextCase) :- index(X,Y,NumCase), X2 is X+1, clean_position((X2,Y),(X3,Y3)), index(X3,Y3,NextCase), !.
+next_case(NumCase, w, NextCase) :- index(X,Y,NumCase), X2 is X-1, clean_position((X2,Y),(X3,Y3)), index(X3,Y3,NextCase), !.
+next_case(NumCase, s, NextCase) :- index(X,Y,NumCase), Y2 is Y-1, clean_position((X,Y2),(X3,Y3)), index(X3,Y3,NextCase), !.
+next_case(NumCase, n, NextCase) :- index(X,Y,NumCase), Y2 is Y+1, clean_position((X,Y2),(X3,Y3)), index(X3,Y3,NextCase), !.
+
+clean_position((X,_),(0,0)) :- X =< 0, !.
+clean_position((X,_),(0,0)) :- X > 5, !.
+clean_position((_,Y),(0,0)) :- Y =< 0, !.
+clean_position((_,Y),(0,0)) :- Y > 5, !.
+clean_position(P,P).
 
 direction_opposee(e,w).
 direction_opposee(s,n).
@@ -16,7 +22,8 @@ direction_opposee(w,e).
 direction_opposee(n,s).
 
 % case vide
-case_vide([E,R,M,_], Position) :- \+member((Position,_), E), \+member((Position,_), R), \+member((Position,_), M).
+case_vide(_, 0) :- !.
+case_vide([E,R,M,_], Position) :- \+member((Position,_), E), \+member((Position,_), R), \+member(Position, M).
 case_vide(P,X,Y) :- index(X,Y,N), case_vide(N, P).
 
 % est-ce que un animal est dehors ?
