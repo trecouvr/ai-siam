@@ -6,18 +6,21 @@ plateau_depart([[(11,e),(12,s),(0,w),(0,e),(0,e)],[(0,n),(0,n),(0,s),(0,w),(0,e)
 :- include('affichage.pl').
 :- include('pousse_possible.pl').
 :- include('coups_possibles.pl').
+:- include('jouer_coup.pl').
 
 
+:- dynamic(plateau/1).
+set_plateau(P) :- retractall(plateau(_)), asserta(plateau(P)).
+get_plateau(P) :- plateau(P).
+affiche_plateau_courant :- plateau(X), affiche_plateau(X), !.
 
 demande_coup(X) :-
 	repeat,
+	get_plateau(P),
 	write('Coup : '),
 	read(X),
-	coup_possible(X),
+	coup_possible(P,X),
 	!.
-	
-:- dynamic(plateau/1).
-set_plateau(P) :- retractall(plateau(_)), asserta(plateau(P)).
-affiche_plateau_courant :- plateau(X), affiche_plateau(X).
 
-%jouer() :- repeat, demande_coup(X),
+
+%jouer() :- repeat, demande_coup(X)

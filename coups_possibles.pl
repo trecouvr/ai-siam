@@ -14,7 +14,7 @@ coup_possible(Plateau, (Position, 0, O)) :-
 	is_mine(Plateau,Position,(Position,O)).
 
 % changement orientation
-coup_possible(Plateau, (P,P, O)) :-
+coup_possible(Plateau, (P, P, O)) :-
 	case_valid(P),
 	orientation_valid(O),
 	is_mine(Plateau,P,_).
