@@ -1,13 +1,14 @@
 
 
 pousse_possible([E,R,M,_], NumCase, Direction) :-
-	!,
 	append(E,R,A),
 	member((NumCase, Direction), A),
 	force_masse(A,M, NumCase, Direction, Force, Masse),
+	!,
 	Force > 0,
 	Force >= Masse.
 
+force_masse(_,_,0,_,0,0) :- !.
 % montagne
 % force idem
 % masse++
