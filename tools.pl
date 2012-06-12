@@ -57,3 +57,6 @@ case_valid(NumCase) :- member(NumCase, [11,12,13,14,15,21,22,23,24,25,31,32,33,3
 % l'orientation est valide
 orientation_valid(O) :- member(O, [n,s,e,w]).
 
+% joueur adverse
+enemy(e,r).
+enemy(r,e).

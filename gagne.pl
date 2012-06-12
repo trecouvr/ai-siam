@@ -12,6 +12,7 @@ dir_pousse(M, e) :- index(X,_,M), X > 5, !.
 dir_pousse(M, s) :- index(_,Y,M), Y =< 0, !.
 dir_pousse(M, n) :- index(_,Y,M), Y > 5, !.
 
+% gagnat(+Plateau, ?Gagnant).
 gagnant([E,R,M,_], G) :-
 	montagne_dehors(M,Md),
 	dir_pousse(Md, Dir),

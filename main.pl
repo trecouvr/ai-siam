@@ -8,6 +8,7 @@ plateau_depart([[(11,e),(22,s),(0,w),(0,e),(0,e)],[(0,n),(0,n),(0,s),(0,w),(0,e)
 :- include('coups_possibles.pl').
 :- include('jouer_coup.pl').
 :- include('gagne.pl').
+:- include('alphabeta.pl').
 
 
 :- dynamic(plateau/1).
