@@ -39,6 +39,6 @@ coup_possible(Plateau, (Depart,Arrive,Direction)) :-
 	pousse_possible(Plateau, Depart, Direction).
 
 
-coups_possibles(Plateau, L) :- !, findall(C, coup_possible(Plateau,C), L), !.
+coups_possibles(Plateau, L) :- findall(C, coup_possible(Plateau,C), L), !.
 
 

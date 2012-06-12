@@ -7,6 +7,7 @@ plateau_depart([[(11,e),(22,s),(0,w),(0,e),(0,e)],[(0,n),(0,n),(0,s),(0,w),(0,e)
 :- include('pousse_possible.pl').
 :- include('coups_possibles.pl').
 :- include('jouer_coup.pl').
+:- include('gagne.pl').
 
 
 :- dynamic(plateau/1).
@@ -35,6 +36,8 @@ jouer :-
 	demande_coup(X),
 	get_plateau(P),
 	jouer_coup(P, X, P2),
-	set_plateau(P2),
-	gagne(P2),
+	clean_positions_plateau(P2,P3),
+	set_plateau(P3),
+	gagnant(P3,G),
+	write('gagnant : '), write(G), write('\n'),
 	!.
