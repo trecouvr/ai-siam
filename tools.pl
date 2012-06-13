@@ -60,3 +60,7 @@ orientation_valid(O) :- member(O, [n,s,e,w]).
 % joueur adverse
 enemy(e,r).
 enemy(r,e).
+
+infini(1000).
+
+

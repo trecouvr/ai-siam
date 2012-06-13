@@ -16,13 +16,13 @@ cases_autour(P, [C12,C21,C23,C32]) :-
 score_animal((0,_), _, 0) :- !.
 
 % plus de montagnes
-score_animal(_, [], 0) :- !.
+score_animal(_, [], 1) :- !.
 
 % animal à côté d'une montagne et dans la bonne direction	
-score_animal((P,Dir), [(M, Lp)|Q], S) :- member(P,Lp), next_case(P, Dir, M), score_animal((P,Dir), Q, S2), S is 5 + S2, !.
+score_animal((P,Dir), [(M, Lp)|Q], S) :- member(P,Lp), next_case(P, Dir, M), score_animal((P,Dir), Q, S2), S is 10 + S2, !.
 
 % animal à côté d'une montagne mais dans la mauvaise direction
-score_animal((P,Dir), [(_, Lp)|Q], S) :- member(P,Lp), score_animal((P,Dir), Q, S2), S is 2 + S2, !. 
+score_animal((P,Dir), [(_, Lp)|Q], S) :- member(P,Lp), score_animal((P,Dir), Q, S2), S is 3 + S2, !. 
 
 % sinon
 score_animal(P, [_|Q], S) :- score_animal(P, Q, S).
@@ -35,6 +35,12 @@ score_elep_rino(E,R,M, Se, Sr) :-
 	score_animaux(E, Ms, Se),
 	score_animaux(R, Ms, Sr).
 
+
+%
+% score_plateau(+Plateau, ?Score).
+% plus le plateau est favorable, plus le score est haut.
+%
+
 % score maximal si le joueur courant gagne
 score_plateau([E,R,M,J], 10000) :- gagnant([E,R,M,J], J), !.
 % score minimal si le joueur courant perd
@@ -45,8 +51,33 @@ score_plateau([E,R,M,e], S) :-
 	S is Se - Sr,
 	!.
 
-score_plateau([E,R,M,e], S) :-
+score_plateau([E,R,M,r], S) :-
 	score_elep_rino(E,R,M,Se,Sr),
 	S is Sr - Se,
 	!.
 
+% sortir
+score_coup(_P, (_,0,_), 10) :- !.
+% tourner
+score_coup(_, (N,N,_), 9) :- !.
+% case vide près d'une montagne, bonne direction
+score_coup([E,R,M,J], (_,N,D), 5) :-
+	case_vide([E,R,M,J], N),
+	findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms),
+	score_animal((N,D), Ms, S),
+	S > 9,
+	!.
+% case vide près d'une montagne, pas forcément bonne direction
+score_coup([E,R,M,J], (_,N,D), 6) :-
+	case_vide([E,R,M,J], N),
+	findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms),
+	score_animal((N,D), Ms, S),
+	S > 0,
+	!.
+% aller sur case vide
+score_coup(P, (X,N,_), 7) :- X \= 0, case_vide(P, N), !.
+% entrer
+score_coup(_P, (0,_,_), 8) :- !.
+% pousser un truc
+score_coup(P, (_,N,_), 4) :- \+case_vide(P,N), !.
+	
