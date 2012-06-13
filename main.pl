@@ -41,7 +41,7 @@ jouer_ai :-
 	affiche_plateau_courant,
 	%write('entrez un truc\n'),read(_),
 	get_plateau(P),
-	alphabeta(2, P, X, S),
+	alphabeta(4, P, X, S),
 	write('Choose : '), write(X), write(' score : '), write(S), nl,
 	jouer_coup(P, X, P2),
 	clean_positions_plateau(P2,P3),
