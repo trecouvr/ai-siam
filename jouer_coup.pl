@@ -9,20 +9,34 @@ update_liste([(Pi,_)|Q], (Pi,Pf,O), [(Pf,O)|Q]) :- !.
 update_liste([Pi|Q], (Pi,Pf), [Pf|Q]) :- !.
 update_liste([X|Q], C, [X|Q2]) :- update_liste(Q,C,Q2).
 
+update_player_liste([E,R,M,e], NewPos, [E2,R,M,e]) :- update_liste(E, NewPos, E2).
+update_player_liste([E,R,M,r], NewPos, [E,R2,M,r]) :- update_liste(R, NewPos, R2).
 
 % simple changement d'orientation
 jouer_coup([E,R,M,J], (P,P,O), [E2,R2,M,J2]) :-
-	update_liste(E, (P,P,O), E2),
-	update_liste(R, (P,P,O), R2),
+	update_player_liste([E,R,M,J], (P,P,O), [E2,R2,M,J]),
 	switch_joueur(J,J2),
 	!.
 
-% faire entrer une pièce
-jouer_coup([E,R,M,e], (0,P,O), [E2,R,M,r]) :-
-	update_liste(E, (0,P,O), E2),
+% faire sortir une pièce
+jouer_coup([E,R,M,J], (P,0,O), [E2,R2,M,J2]) :-
+	update_player_liste([E,R,M,J], (P,0,O), [E2,R2,M,J]),
+	switch_joueur(J,J2),
 	!.
-jouer_coup([E,R,M,r], (0,P,O), [E,R2,M,e]) :-
-	update_liste(R, (0,P,O), R2),
+
+% déplacement case vide
+jouer_coup([E,R,M,J], (Pi,Pf,O), [E2,R2,M,J2]) :-
+	case_vide([E,R,M,e], Pf),
+	update_player_liste([E,R,M,J], (Pi,Pf,O), [E2,R2,M,J]),
+	switch_joueur(J,J2),
+	!.
+
+% faire entrer une pièce sur case occuppée
+jouer_coup([E,R,M,J], (0,P,O), [E3,R3,M3,J2]) :-
+	prev_case(P, O, Prev),
+	update_player_liste([E,R,M,J], (0,Prev,O), [E2,R2,M,J]),
+	deplacer_obj([E2,R2,M,J], (Prev,P,O), [E3,R3,M3,J]),
+	switch_joueur(J,J2),
 	!.
 
 % déplacement sur case occupée

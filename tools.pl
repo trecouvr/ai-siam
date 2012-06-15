@@ -14,6 +14,8 @@ next_case(NumCase, w, NextCase) :- index(X,Y,NumCase), X2 is X-1, index(X2,Y,Nex
 next_case(NumCase, s, NextCase) :- index(X,Y,NumCase), Y2 is Y-1, index(X,Y2,NextCase), !.
 next_case(NumCase, n, NextCase) :- index(X,Y,NumCase), Y2 is Y+1, index(X,Y2,NextCase), !.
 
+prev_case(Current, Dir, Prev) :- direction_opposee(Dir,Opp), next_case(Current, Opp, Prev).
+
 % clean_position(+(X,Y), ?CleanedPos).
 % permet de s'assurer que la case est valide (comprise dans un carré de 5x5 ou =0 pour l'exterieur)
 clean_position(P,0) :- index(X,_,P), X =< 0, !.
