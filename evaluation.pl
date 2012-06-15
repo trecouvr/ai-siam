@@ -65,20 +65,22 @@ score_plateau([E,R,M,r], S) :-
 score_coup(_P, (_,0,_), 10) :- !.
 % tourner
 score_coup(_, (N,N,_), 9) :- !.
-% case vide près d'une montagne, bonne direction
+% entrer sur une bonne case
+score_coup(_, (0,P,n), 5) :- member(P, [12,13,14]), !.
+score_coup(_, (0,P,s), 5) :- member(P, [52,53,54]), !.
+% aller sur une case où la poussée est possible
 score_coup([E,R,M,J], (_,N,D), 5) :-
 	case_vide([E,R,M,J], N),
-	findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms),
-	score_animal((N,D), Ms, S),
-	S > 9,
+	next_case(N,D,Next),
+	\+ case_vide([E,R,M,J], Next),
+	pousse_possible([[(N,D)|E],R,M,J], N,D),
 	!.
+% case vide près d'une montagne, bonne direction
+%score_coup([E,R,M,J], (_,N,D), 5) :- case_vide([E,R,M,J], N), findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms), score_animal((N,D), Ms, S), S > 9,	!.
+
 % case vide près d'une montagne, pas forcément bonne direction
-score_coup([E,R,M,J], (_,N,D), 6) :-
-	case_vide([E,R,M,J], N),
-	findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms),
-	score_animal((N,D), Ms, S),
-	S > 0,
-	!.
+%score_coup([E,R,M,J], (_,N,D), 6) :- case_vide([E,R,M,J], N), findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms), score_animal((N,D), Ms, S), S > 0, !.
+
 % aller sur case vide
 score_coup(P, (X,N,_), 7) :- X \= 0, case_vide(P, N), !.
 % entrer
