@@ -10,7 +10,7 @@ trunc(Lim, [X|Q], [X|Q2]) :- Lim2 is Lim-1, trunc(Lim2, Q, Q2).
 sort_moves(Position, Moves, MovesSorted) :-
 	findall(X-M, (member(M,Moves), score_coup(Position,M,X)), Moves2),
 	keysort(Moves2, Moves3),
-	trunc(5, Moves3, Moves4),
+	trunc(10, Moves3, Moves4),
 	findall(M2, (member(_-M2,Moves4)), MovesSorted).
 
 alphabeta(D, P, Move, Value) :-

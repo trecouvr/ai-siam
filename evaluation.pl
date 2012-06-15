@@ -18,11 +18,16 @@ score_animal((0,_), _, 0) :- !.
 % plus de montagnes
 score_animal(_, [], 1) :- !.
 
+% animal pouvant pousser une montagne
+score_animal((P,Dir), [(M, Lp)|Q], S) :- member(P,Lp), next_case(P, Dir, M), score_animal((P,Dir), Q, S2), S is 10 + S2, !. 
+
+% animal à côté d'une montagne
+score_animal((P,Dir), [(_, Lp)|Q], S) :- member(P,Lp), score_animal((P,Dir), Q, S2), S is 3 + S2, !. 
 % animal à côté d'une montagne et dans la bonne direction	
-score_animal((P,Dir), [(M, Lp)|Q], S) :- member(P,Lp), next_case(P, Dir, M), score_animal((P,Dir), Q, S2), S is 10 + S2, !.
+%score_animal((P,Dir), [(M, Lp)|Q], S) :- member(P,Lp), next_case(P, Dir, M), score_animal((P,Dir), Q, S2), S is 10 + S2, !.
 
 % animal à côté d'une montagne mais dans la mauvaise direction
-score_animal((P,Dir), [(_, Lp)|Q], S) :- member(P,Lp), score_animal((P,Dir), Q, S2), S is 3 + S2, !. 
+%score_animal((P,Dir), [(_, Lp)|Q], S) :- member(P,Lp), score_animal((P,Dir), Q, S2), S is 3 + S2, !. 
 
 % sinon
 score_animal(P, [_|Q], S) :- score_animal(P, Q, S).

@@ -1,4 +1,8 @@
 
+pousse_possible(P, NumCase, Direction) :-
+	next_case(NumCase, Direction, NextCase),
+	case_vide(P, NextCase),
+	!.
 
 pousse_possible([E,R,M,_], NumCase, Direction) :-
 	append(E,R,A),
