@@ -1,15 +1,5 @@
 
 
-% récupérer les cases autour d'une case
-%cases_autour(P, [C11,C12,C13,C21,C23,C31,C32,C33]) :-
-cases_autour(P, [C12,C21,C23,C32]) :-
-	index(X,Y,P),
-	Xp is X+1, Xm is X-1, Yp is Y+1, Ym is Y-1,
-	%index(Xm,Ym,C11), 	index(X,Ym,C12), 	index(Xp,Ym,C13),
-	index(X,Ym,C12),
-	index(Xm,Y,C21), 						index(Xp,Y,C23),
-	%index(Xm,Yp,C31), 	index(X,Yp,C32), 	index(Xp,Yp,C33).
-	index(X,Yp,C32).
 
 objects_in_pousse(Plateau, P, _Dir, M, M, A, _RA, A) :- case_vide(Plateau, P), !.
 objects_in_pousse([E,R,Ms,J], P, Dir, _, M, _RRA, RA, A) :-
@@ -104,6 +94,8 @@ score_plateau([E,R,M,r], S) :-
 
 % sortir
 score_coup(_P, (_,0,_), 10) :- !.
+
+
 % pousser un truc bien
 score_coup([E,R,M,e], (0,Pf,Dir), 4) :-
 	prev_case(Pf, Dir, Prev),

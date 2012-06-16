@@ -1,6 +1,4 @@
 
-switch_joueur(e,r).
-switch_joueur(r,e).
 
 update_liste([], _, []) :- !.
 % pour les animaux
