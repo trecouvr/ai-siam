@@ -15,23 +15,28 @@ sort_moves(Position, Moves, MovesSorted) :-
 
 alphabeta(D, P, Move, Value) :-
 	infini(Inf),
-	Alpha is 1-Inf,
-	Beta is Inf-1,
+	Alpha is -1-Inf,
+	Beta is Inf+1,
 	alphabeta(D,P,Alpha, Beta, Move, Value),
 	!.
 
 % alphabeta(+Plateau, +Alpha, +Beta, +Depth, ?Meilleur).
 alphabeta(0,Position,_Alpha,_Beta,_NoMove,Value) :- 
 	score_plateau(Position,Value).
-alphabeta(D,Position,Alpha,Beta,Move,Value) :- 
-	D > 0, 
-	coups_possibles(Position, Moves),
-	sort_moves(Position, Moves,MovesSorted),
+alphabeta(D, [E,R,M,J], _Alpha, _Beta, _NoMove, 10000) :- 0 is D mod 2, gagnant([E,R,M,J], J).
+alphabeta(D, [E,R,M,J], _Alpha, _Beta, _NoMove, -10000) :- 0 is D mod 2, switch_joueur(J,J2), gagnant([E,R,M,J], J2).
+alphabeta(D, [E,R,M,J], _Alpha, _Beta, _NoMove, 10000) :- 1 is D mod 2, gagnant([E,R,M,J], J).
+alphabeta(D, [E,R,M,J], _Alpha, _Beta, _NoMove, -10000) :- 1 is D mod 2, switch_joueur(J,J2), gagnant([E,R,M,J], J2).
+alphabeta(D,Plateau,Alpha,Beta,Move,Value) :- 
+	D > 0,
+	clean_positions_plateau(Plateau,Plateau2),
+	coups_possibles(Plateau2, Moves),
+	sort_moves(Plateau2, Moves,MovesSorted),
 	%write(MovesSorted),nl,
 	Alpha1 is -Beta, % max/min
 	Beta1 is -Alpha,
 	D1 is D-1, 
-	evaluate_and_choose(MovesSorted,Position,D1,Alpha1,Beta1,_,(Move,Value)).
+	evaluate_and_choose(MovesSorted,Plateau2,D1,Alpha1,Beta1,_,(Move,Value)).
 
 evaluate_and_choose([Move|Moves],Position,D,Alpha,Beta,Record,BestMove) :-
 	jouer_coup(Position,Move,Position1),
@@ -40,14 +45,17 @@ evaluate_and_choose([Move|Moves],Position,D,Alpha,Beta,Record,BestMove) :-
 	cutoff(Move,Value1,D,Alpha,Beta,Moves,Position,Record,BestMove).
 evaluate_and_choose([],_Position,_D,Alpha,_Beta,Move,(Move,Alpha)).
 
-cutoff(Move,Value,_D,_Alpha,Beta,_Moves,_Position,_Record,(Move,Value)) :- 
+cutoff(Move,Value,_D,_Alpha,Beta,_Moves,_Position,_Record,(Move,Value)) :-
+	%write('cut1 '), write(Value), write(' >= '), write(Beta), nl,
 	Value >= Beta,
 	%write('cut !'),
 	!.
 cutoff(Move,Value,D,Alpha,Beta,Moves,Position,_Record,BestMove) :- 
+	%write('cut2 '), write(Value), write(' IN '), write(aLPHA), write(' '), write(Beta), nl,
 	Alpha < Value, Value < Beta, !, 
 	evaluate_and_choose(Moves,Position,D,Value,Beta,Move,BestMove).
 cutoff(_Move,Value,D,Alpha,Beta,Moves,Position,Record,BestMove) :- 
+	%write('cut3 '), write(Value), write(' =< '), write(Alpha), nl,
 	Value =< Alpha, !, 
 	evaluate_and_choose(Moves,Position,D,Alpha,Beta,Record,BestMove).
 

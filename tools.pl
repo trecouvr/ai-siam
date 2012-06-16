@@ -63,6 +63,10 @@ orientation_valid(O) :- member(O, [n,s,e,w]).
 enemy(e,r).
 enemy(r,e).
 
-infini(1000).
+infini(10000).
 
+max(A,B,B) :- B > A, !.
+max(A,_,A).
 
+liste_joueur([E,_,_,e], E).
+liste_joueur([_,R,_,r], R).

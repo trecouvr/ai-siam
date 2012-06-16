@@ -40,7 +40,8 @@ coup_possible(Plateau, (Position, 0, O)) :-
 coup_possible(Plateau, (P, P, O)) :-
 	case_valid(P),
 	orientation_valid(O),
-	is_mine(Plateau,P,_).
+	is_mine(Plateau,P,(P,O2)),
+	O2 \= O.
 
 % déplacement sur case vide
 coup_possible(Plateau, (D,A,O)) :-
