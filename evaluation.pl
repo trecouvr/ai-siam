@@ -20,14 +20,23 @@ montagne_in_pousse(Plateau, P, Dir, R, M) :-
 	next_case(P,Dir,Next),
 	montagne_in_pousse(Plateau, Next, Dir, R, M).
 animal_in_pousse(Plateau, P, _Dir, A, A) :- case_vide(Plateau, P), !.
-animal_in_pousse(Plateau, P, Dir, _, A) :-
-	is_mine(Plateau, P, _),
+animal_in_pousse([E,R,M,J], P, Dir, _, A) :-
+	append(E,R,L),
+	member((P,_), L),
 	next_case(P,Dir,Next),
-	animal_in_pousse(Plateau, Next, Dir, P, A).
+	animal_in_pousse([E,R,M,J], Next, Dir, P, A).
 animal_in_pousse(Plateau, P, Dir, R, A) :-
 	next_case(P,Dir,Next),
 	animal_in_pousse(Plateau, Next, Dir, R, A).
 
+bonne_pousse_possible(Plateau, P, Dir) :-
+	next_case(P, Dir, Next),
+	\+ case_vide(Plateau, Next),
+	pousse_possible(Plateau, P, Dir),
+	montagne_in_pousse(Plateau, Next, Dir, -1, M),
+	animal_in_pousse(Plateau, Next, Dir, P, A),
+	M \= -1, is_mine(Plateau,A,_).
+	
 % animal en dehors de la carte
 score_animal(_, (0,_), _, 0) :- !.
 
@@ -43,12 +52,7 @@ score_animal(_, _, [], 0) :- !.
 
 % animal pouvant pousser une montagne dont un allier est à côté
 score_animal(Plateau, (P,Dir), _M, 10) :-
-	next_case(P, Dir, Next),
-	\+ case_vide(Plateau, Next),
-	pousse_possible(Plateau, P, Dir),
-	montagne_in_pousse(Plateau, Next, Dir, -1, M),
-	animal_in_pousse(Plateau, Next, Dir, P, A),
-	M \= -1, 
+	bonne_pousse_possible(Plateau, P, Dir),
 	!.
 
 % animal à côté d'une montagne au bord dans la bonne direction
@@ -104,8 +108,14 @@ score_plateau([E,R,M,r], S) :-
 
 % sortir
 score_coup(_P, (_,0,_), 10) :- !.
-% pousser un truc
-score_coup(P, (Pi,Pf,_), 4) :- Pi \= Pf, \+case_vide(P,Pf), !.
+% pousser un truc bien
+score_coup([E,R,M,e], (0,Pf,Dir), 4) :-
+	prev_case(Pf, Dir, Prev),
+	bonne_pousse_possible([[(Prev,Dir)|E],R,M,e], Prev, Dir), !.
+score_coup([E,R,M,r], (0,Pf,Dir), 4) :-
+	prev_case(Pf, Dir, Prev),
+	bonne_pousse_possible([E,[(Prev,Dir)|R],M,r], Prev, Dir), !.
+score_coup(P, (Pi,Pf,Dir), 4) :- Pi \= Pf, bonne_pousse_possible(P, Pi, Dir), !.
 % aller sur une case où la poussée est possible
 score_coup([E,R,M,J], (_,N,D), 5) :-
 	next_case(N,D,Next),
@@ -113,7 +123,11 @@ score_coup([E,R,M,J], (_,N,D), 5) :-
 	\+ case_vide([E,R,M,J], Next),
 	pousse_possible([[(N,D)|E],R,M,J], N,D),
 	!.
-
+% aller sur une case face à une montagne
+score_coup([_E,_R,M,_J], (_,N,D), 6) :-
+	next_case(N,D,Next),
+	member(Next, M),
+	!.
 % case vide près d'une montagne, bonne direction
 %score_coup([E,R,M,J], (_,N,D), 5) :- case_vide([E,R,M,J], N), findall((Montagne,Lp), (member(Montagne, M), cases_autour(Montagne, Lp)), Ms), score_animal((N,D), Ms, S), S > 9,	!.
 
