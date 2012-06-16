@@ -11,31 +11,27 @@ cases_autour(P, [C12,C21,C23,C32]) :-
 	%index(Xm,Yp,C31), 	index(X,Yp,C32), 	index(Xp,Yp,C33).
 	index(X,Yp,C32).
 
-montagne_in_pousse(Plateau, P, _Dir, M, M) :- case_vide(Plateau, P), !.
-montagne_in_pousse([E,R,Ms,J], P, Dir, _, M) :-
+objects_in_pousse(Plateau, P, _Dir, M, M, A, _RA, A) :- case_vide(Plateau, P), !.
+objects_in_pousse([E,R,Ms,J], P, Dir, _, M, _RRA, RA, A) :-
 	member(P,Ms),
 	next_case(P,Dir,Next),
-	montagne_in_pousse([E,R,Ms,J], Next, Dir, P, M).
-montagne_in_pousse(Plateau, P, Dir, R, M) :-
-	next_case(P,Dir,Next),
-	montagne_in_pousse(Plateau, Next, Dir, R, M).
-animal_in_pousse(Plateau, P, _Dir, A, A) :- case_vide(Plateau, P), !.
-animal_in_pousse([E,R,M,J], P, Dir, _, A) :-
+	objects_in_pousse([E,R,Ms,J], Next, Dir, P, M, RA, RA, A), !.
+objects_in_pousse([E,R,Ms,J], P, Dir, RM, M, RRA, _RA, A) :-
 	append(E,R,L),
 	member((P,_), L),
 	next_case(P,Dir,Next),
-	animal_in_pousse([E,R,M,J], Next, Dir, P, A).
-animal_in_pousse(Plateau, P, Dir, R, A) :-
+	objects_in_pousse([E,R,Ms,J], Next, Dir, RM, M, RRA, P, A), !.
+objects_in_pousse(Plateau, P, Dir, R, M, RRA, RA, A) :-
 	next_case(P,Dir,Next),
-	animal_in_pousse(Plateau, Next, Dir, R, A).
+	objects_in_pousse(Plateau, Next, Dir, R, M, RRA, RA, A), !.
+
 
 bonne_pousse_possible(Plateau, P, Dir) :-
 	next_case(P, Dir, Next),
 	\+ case_vide(Plateau, Next),
 	pousse_possible(Plateau, P, Dir),
-	montagne_in_pousse(Plateau, Next, Dir, -1, M),
-	animal_in_pousse(Plateau, Next, Dir, P, A),
-	M \= -1, is_mine(Plateau,A,_).
+	objects_in_pousse(Plateau, Next, Dir, -1, M, P, P, A),
+	M \= -1, is_mine(Plateau,A,_), !.
 	
 % animal en dehors de la carte
 score_animal(_, (0,_), _, 0) :- !.
@@ -117,11 +113,17 @@ score_coup([E,R,M,r], (0,Pf,Dir), 4) :-
 	bonne_pousse_possible([E,[(Prev,Dir)|R],M,r], Prev, Dir), !.
 score_coup(P, (Pi,Pf,Dir), 4) :- Pi \= Pf, bonne_pousse_possible(P, Pi, Dir), !.
 % aller sur une case où la poussée est possible
-score_coup([E,R,M,J], (_,N,D), 5) :-
+score_coup([E,R,M,e], (_,N,D), 5) :-
 	next_case(N,D,Next),
 	case_valid(Next),
-	\+ case_vide([E,R,M,J], Next),
-	pousse_possible([[(N,D)|E],R,M,J], N,D),
+	\+ case_vide([E,R,M,e], Next),
+	bonne_pousse_possible([[(N,D)|E],R,M,e], N,D),
+	!.
+score_coup([E,R,M,r], (_,N,D), 5) :-
+	next_case(N,D,Next),
+	case_valid(Next),
+	\+ case_vide([E,R,M,r], Next),
+	bonne_pousse_possible([E,[(N,D)|R],M,r], N,D),
 	!.
 % aller sur une case face à une montagne
 score_coup([_E,_R,M,_J], (_,N,D), 6) :-
