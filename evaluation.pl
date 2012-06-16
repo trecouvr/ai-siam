@@ -127,6 +127,7 @@ score_coup([E,R,M,r], (_,N,D), 5) :-
 	!.
 % aller sur une case face à une montagne
 score_coup([_E,_R,M,_J], (_,N,D), 6) :-
+	N \= 35, N \= 31,
 	next_case(N,D,Next),
 	member(Next, M),
 	!.
@@ -142,8 +143,10 @@ score_coup(_, (N,N,_), 9) :- !.
 % aller sur case vide
 score_coup(P, (X,N,_), 7) :- X \= 0, case_vide(P, N), !.
 % entrer sur une bonne case
-score_coup(_, (0,P,n), 6) :- member(P, [12,13,14]), !.
-score_coup(_, (0,P,s), 6) :- member(P, [52,53,54]), !.
+score_coup(P, (0,N,n), 6) :- case_vide(P,N), member(N, [12,13,14]), !.
+score_coup(P, (0,N,s), 6) :- case_vide(P,N), member(N, [52,53,54]), !.
+score_coup(P, (0,N,n), 6) :- liste_joueur(P,L), member((N,_),L), member(N, [12,13,14]), !.
+score_coup(P, (0,N,s), 6) :- liste_joueur(P,L), member((N,_),L), member(N, [52,53,54]), !.
 % entrer
 score_coup(_P, (0,_,_), 8) :- !.
 	
