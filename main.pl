@@ -65,3 +65,14 @@ ai_vs_ai :-
 	write('gagnant : '), write(G), write('\n'),
 	!.
 
+
+jouer_vs_ai :-
+	init_plateau,
+	repeat,
+	jouer_humain,
+	jouer_ai,
+	get_plateau(P),
+	gagnant(P,G),
+	write('gagnant : '), write(G), write('\n'),
+	!.
+
